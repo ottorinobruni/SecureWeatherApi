@@ -1,5 +1,3 @@
-Ecco una versione adattata del README per il tuo progetto JWT:
-
 # JWT Authentication in ASP.NET Core Minimal API: A Developer's Guide
 
 This repository contains the source code for a tutorial on implementing JWT (JSON Web Token) authentication in ASP.NET Core Minimal API. The project demonstrates how to implement token-based authentication, helping developers understand the fundamentals of JWT while showcasing both learning-focused and production-ready approaches.
