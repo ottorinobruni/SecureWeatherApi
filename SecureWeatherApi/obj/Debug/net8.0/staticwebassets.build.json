@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "3fQOYExUsLHuVpQPvwZRyRLYVaXN3L9YInY7eSgSutQ=",
+  "Source": "SecureWeatherApi",
+  "BasePath": "_content/SecureWeatherApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
