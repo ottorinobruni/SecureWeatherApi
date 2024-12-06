@@ -1,8 +1,33 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Bind JWT settings from configuration
+var jwtSettings = builder.Configuration
+    .GetSection("Jwt")
+    .Get<JwtSettings>();
+
 // Configure Authentication and JWT Bearer.
-builder.Services.AddAuthentication().AddJwtBearer();
-builder.Services.AddAuthorizationBuilder();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -22,6 +47,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapPost("/login", (UserCredentials credentials) =>
+{
+    if (credentials.Username == "username" && credentials.Password == "password")
+    {
+        var token = GenerateAccessToken(credentials.Username, jwtSettings);
+        return Results.Ok(new { AccessToken = token });
+    }
+    return Results.Unauthorized();
+})
+.WithName("Login")
+.WithOpenApi();
 
 var summaries = new[]
 {
@@ -46,7 +83,45 @@ app.MapGet("/weatherforecast", () =>
 
 app.Run();
 
+// Helper method for token generation
+string GenerateAccessToken(string username, JwtSettings jwtSettings)
+{
+    var claims = new[]
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, username),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.Name, username)
+    };
+
+    var securityKey = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(jwtSettings.Key));
+
+    var credentials = new SigningCredentials(
+        securityKey, 
+        SecurityAlgorithms.HmacSha256);
+
+    var token = new JwtSecurityToken(
+        issuer: jwtSettings.Issuer,
+        audience: jwtSettings.Audience,
+        claims: claims,
+        expires: DateTime.UtcNow.AddSeconds(jwtSettings.ExpirationSeconds),
+        signingCredentials: credentials);
+
+    return new JwtSecurityTokenHandler().WriteToken(token);    
+}
+
+//Models
+record UserCredentials(string Username, string Password);
+
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+
+public class JwtSettings
+{
+    public string Key { get; set; } = string.Empty;
+    public string Issuer { get; set; } = string.Empty;
+    public string Audience { get; set; } = string.Empty;
+    public int ExpirationSeconds { get; set; }
 }

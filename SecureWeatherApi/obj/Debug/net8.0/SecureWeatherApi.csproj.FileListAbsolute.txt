@@ -39,3 +39,4 @@
 /Users/ottorinobruni/Documents/Work/DotNet/SecureWeatherApi/SecureWeatherApi/obj/Debug/net8.0/SecureWeatherApi.pdb
 /Users/ottorinobruni/Documents/Work/DotNet/SecureWeatherApi/SecureWeatherApi/obj/Debug/net8.0/SecureWeatherApi.genruntimeconfig.cache
 /Users/ottorinobruni/Documents/Work/DotNet/SecureWeatherApi/SecureWeatherApi/obj/Debug/net8.0/ref/SecureWeatherApi.dll
+/Users/ottorinobruni/Documents/Work/DotNet/SecureWeatherApi/SecureWeatherApi/obj/Debug/net8.0/SecureWeatherApi.sourcelink.json
