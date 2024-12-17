@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Authentication</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="login-form">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+
+    <h2>Weather Data</h2>
+    <button id="fetch-data" disabled>Fetch Weather Data</button>
+    <pre id="weather-data"></pre>
+
+    <script>
+        let accessToken = null;
+        let refreshToken = null;
+
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                accessToken = data.accessToken;
+                refreshToken = data.refreshToken;
+                document.getElementById('fetch-data').disabled = false;
+                alert('Login successful!');
+            } else {
+                alert('Login failed!');
+            }
+        });
+
+        document.getElementById('fetch-data').addEventListener('click', async function() {
+
+            if (isTokenExpired(accessToken)) {
+                await refreshAccessToken();
+            }
+            
+            const response = await fetch('/weatherforecast', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.status === 401) {
+                console.error("Token expired!");
+                // Token expired, refresh the token
+                await refreshAccessToken();
+                // Retry the request with the new access token
+                await fetchWeatherData();
+            } else if (response.ok) {
+                console.log("fetch weatherforecast!");
+                const data = await response.json();
+                document.getElementById('weather-data').innerText = JSON.stringify(data, null, 2);
+            } else {
+                alert('Failed to fetch weather data');
+            }
+        });
+
+        async function refreshAccessToken() {
+            const response = await fetch('/refresh', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken: refreshToken })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                accessToken = data.accessToken;
+                console.log("Got Access Token!");
+            } else {
+                alert('Failed to refresh token. Please log in again.');
+                accessToken = null;
+                refreshToken = null;
+                document.getElementById('fetch-data').disabled = true;
+            }
+        }
+
+        function isTokenExpired(token) {
+            if (!token) return true; // If there's no token, consider it expired
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const exp = payload.exp * 1000; // Convert exp to milliseconds
+            return Date.now() > exp; // Check if current time exceeds expiration time
+        }
+
+    </script>
+</body>

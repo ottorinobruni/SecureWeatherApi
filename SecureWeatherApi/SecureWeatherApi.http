@@ -1,7 +1,25 @@
 @SecureWeatherApi_HostAddress = http://localhost:5168
-@Access_JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Im90dG9yaW5vYnJ1bmkiLCJzdWIiOiJvdHRvcmlub2JydW5pIiwianRpIjoiZGVkYzgyOTciLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDoxMDM0MSIsImh0dHBzOi8vbG9jYWxob3N0OjQ0MzI0IiwiaHR0cDovL2xvY2FsaG9zdDo1MTY4IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzEzNyJdLCJuYmYiOjE3MzI4OTI3OTIsImV4cCI6MTc0MDc1NTE5MiwiaWF0IjoxNzMyODkyNzkzLCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.dhEsj9fc8Bc86lVcBIPPX-mtFLbMwe16VY5G5F89ssE
+@Access_JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImp0aSI6IjFmYmQzMzcxLTdmZGItNGJkNS1iMjI3LTk3YWI3ZjkzYzJhOSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJ1c2VybmFtZSIsImV4cCI6MTczNDQ0NDAxNiwiaXNzIjoiU2VjdXJlQXBpV2l0aEpXVCIsImF1ZCI6IlNlY3VyZUFwaVVzZXJzIn0.YSoFFFqYDIm3OC8KzPTvAi88N3tenw6AXVodymYujng
+@Refresh_Token = 9a40c791-5c50-4d1a-9b1e-d6b003efb2e9
 
 GET {{SecureWeatherApi_HostAddress}}/weatherforecast/
 Accept: application/json
 Authorization: Bearer {{Access_JWT}}
 ###
+
+### Login Request
+POST {{SecureWeatherApi_HostAddress}}/login/
+Content-Type: application/json
+
+{
+    "username": "username",
+    "password": "password"
+}
+
+### Refresh Token Request
+POST {{SecureWeatherApi_HostAddress}}/refresh/
+Content-Type: application/json
+
+{
+    "refreshToken": "{{Refresh_Token}}"
+}
